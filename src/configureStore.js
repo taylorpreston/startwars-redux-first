@@ -1,6 +1,7 @@
 import { createStore, applyMiddleware, compose, combineReducers } from 'redux'
 import { composeWithDevTools } from 'redux-devtools-extension/logOnlyInProduction'
 import { connectRoutes } from 'redux-first-router'
+import queryString from 'query-string'
 
 import routesMap from './routesMap'
 import * as reducers from './reducers'
@@ -8,7 +9,8 @@ import * as reducers from './reducers'
 export default (history, preloadedState) => {
   const { reducer, middleware, enhancer, thunk } = connectRoutes(
     history,
-    routesMap
+    routesMap,
+    { querySerializer: queryString }
   )
 
   const rootReducer = combineReducers({ ...reducers, location: reducer })

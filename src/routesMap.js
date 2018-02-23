@@ -1,4 +1,5 @@
 import { redirect } from 'redux-first-router'
+import _ from 'lodash';
 
 export default {
   HOME: '/',
@@ -28,17 +29,20 @@ export default {
       // console.log("SW", getState().location)
       const data = await starWarsFetch()
       
-      dispatch({ type: "STARWARS_FETCHED", data: data})
+      dispatch({ type: "STARWARS_FETCHED", data: data, SWcategory: 'home'})
     }
   },
   STARWARS_CATEGORY:{
     path: '/starwars/:SWcategory',
     thunk: async (dispatch, getState) => {
-      const { payload } = getState().location
-      // console.log("SW CATEGORY", getState().location)
-      let data = await starWarsFetch(payload)
+      const { payload, search } = getState().location
+      let data = await starWarsFetch(payload, search)
       
-      dispatch({ type: "STARWARS_FETCHED", data: data})
+      dispatch({ 
+        type: "STARWARS_FETCHED", 
+        SWcategory: payload.SWcategory, 
+        data: data
+      })
     }
   }
 }
@@ -55,17 +59,21 @@ const config = {
 
 const baseUrl = 'https://swapi.co/api/'
 
-const starWarsFetch = async options => {
+const starWarsFetch = async (options, search) => {
+  console.log('Options/Search For Star Wars Fetch ===>', options, search)
   let url = baseUrl
   if(options) {
     const { SWcategory } = options
     url = `${baseUrl}${SWcategory}/`
   }
+  if(search && !_.includes(search, "undefined")){
+    url = `${url}?${search}`
+  }
   console.log("URL", url)
   const response = await fetch(url, config)
-  console.log("RESPONSE", response)
+  // console.log("RESPONSE", response)
   const json = await response.json()
-  console.log('JSON', json)
+  // console.log('JSON', json)
   return json
 }
 
